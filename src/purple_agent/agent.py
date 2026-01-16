@@ -319,9 +319,11 @@ with clear signal names and comments."""
             self._log(f"  Compilation: {'✓' if result['compilation_success'] else '✗'}")
             self._log(f"  Tests: {result['passed']}/{result['total']} passed")
             
-            # Log failed tests if any
-            if result['failed'] > 0 and 'error_message' in result:
-                self._log(f"  Failed tests: {result['error_message'][:200]}...")
+            # Log failed tests if any (handle missing/None error_message)
+            if result['failed'] > 0:
+                err_msg = result.get('error_message')
+                if err_msg:
+                    self._log(f"  Failed tests: {err_msg[:200]}...")
             
             if result["success"]:
                 self._log(f"  ✓ PASSED!")
