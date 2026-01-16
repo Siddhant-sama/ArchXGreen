@@ -1,5 +1,12 @@
 FROM ghcr.io/astral-sh/uv:python3.13-bookworm
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        iverilog \
+        yosys \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN adduser agent
 USER agent
 WORKDIR /home/agent
@@ -12,5 +19,5 @@ RUN \
     uv sync --locked
 
 ENTRYPOINT ["uv", "run", "src/server.py"]
-CMD ["--host", "0.0.0.0"]
+CMD ["--host", "0.0.0.0", "--port", "9009"]
 EXPOSE 9009

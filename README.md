@@ -1,87 +1,67 @@
-# A2A Agent Template
+# ArchXGreen – ArchXBench Green Agent
 
-A minimal template for building [A2A (Agent-to-Agent)](https://a2a-protocol.org/latest/) green agents compatible with the [AgentBeats](https://agentbeats.dev) platform.
+AgentBeats-ready green agent for the ArchXBench RTL synthesis benchmark. The service exposes the A2A-compatible agent card plus task discovery and health endpoints, and evaluates Verilog submissions with Icarus Verilog (and optionally Yosys for PPA metrics).
 
-## Project Structure
+## What’s inside
 
-```
-src/
-├─ server.py      # Server setup and agent card configuration
-├─ executor.py    # A2A request handling
-├─ agent.py       # Your agent implementation goes here
-└─ messenger.py   # A2A messaging utilities
-tests/
-└─ test_agent.py  # Agent tests
-Dockerfile        # Docker configuration
-pyproject.toml    # Python dependencies
-.github/
-└─ workflows/
-   └─ test-and-publish.yml # CI workflow
-```
+- `src/green_agent/` – ArchXBench loader, evaluator, and A2A server (FastAPI)
+- `src/server.py` – entrypoint that runs the A2A server
+- `tests/` – basic endpoint checks against a running agent
+- `Dockerfile` – ships git + iverilog + yosys for in-container evaluation
+- `pyproject.toml` – uv/PEP 621 metadata
 
-## Getting Started
+## System requirements
 
-1. **Create your repository** - Click "Use this template" to create your own repository from this template
+- Python 3.13 (handled by the uv base image)
+- `git` for dynamic benchmark fetching
+- `iverilog` and `vvp` for compilation/simulation
+- `yosys` (optional) for PPA metrics
 
-2. **Implement your agent** - Add your agent logic to [`src/agent.py`](src/agent.py)
+These are preinstalled in the Docker image. For local runs on macOS: `brew install git icarus-verilog yosys`.
 
-3. **Configure your agent card** - Fill in your agent's metadata (name, skills, description) in [`src/server.py`](src/server.py)
-
-4. **Write your tests** - Add custom tests for your agent in [`tests/test_agent.py`](tests/test_agent.py)
-
-For a concrete example of implementing a green agent using this template, see this [draft PR](https://github.com/RDI-Foundation/green-agent-template/pull/3).
-
-## Running Locally
+## Install dependencies
 
 ```bash
-# Install dependencies
-uv sync
-
-# Run the server
-uv run src/server.py
+uv sync --extra test
+# Optional LLM helpers
+uv sync --extra llm
 ```
 
-## Running with Docker
+## Run locally
 
 ```bash
-# Build the image
-docker build -t my-agent .
+# Use dynamic loader (default)
+uv run src/server.py --host 0.0.0.0 --port 9009
 
-# Run the container
-docker run -p 9009:9009 my-agent
+# Or point to a local ArchXBench checkout
+ARCHXBENCH_ROOT=/path/to/ArchXBench uv run src/server.py --host 0.0.0.0 --port 9009
 ```
+
+## Run with Docker
+
+```bash
+docker build -t archxgreen .
+docker run -p 9009:9009 archxgreen --host 0.0.0.0 --port 9009
+```
+
+## Key endpoints
+
+- `/.well-known/agent-card.json` and `/card` – Agent card
+- `/health` – Status plus total task count
+- `/tasks` – List tasks (`level`, `limit`, `offset` supported)
+- `/tasks/{task_id}` – Task details
+- `/levels` – Level metadata
+- `/assessment` – AgentBeats streaming assessment endpoint
 
 ## Testing
 
-Run A2A conformance tests against your agent.
+Ensure the agent is running (locally or via Docker), then:
 
 ```bash
-# Install test dependencies
-uv sync --extra test
-
-# Start your agent (uv or docker; see above)
-
-# Run tests against your running agent URL
-uv run pytest --agent-url http://localhost:9009
+uv run pytest -v --agent-url http://localhost:9009
 ```
 
-## Publishing
+## Notes
 
-The repository includes a GitHub Actions workflow that automatically builds, tests, and publishes a Docker image of your agent to GitHub Container Registry.
-
-If your agent needs API keys or other secrets, add them in Settings → Secrets and variables → Actions → Repository secrets. They'll be available as environment variables during CI tests.
-
-- **Push to `main`** → publishes `latest` tag:
-```
-ghcr.io/<your-username>/<your-repo-name>:latest
-```
-
-- **Create a git tag** (e.g. `git tag v1.0.0 && git push origin v1.0.0`) → publishes version tags:
-```
-ghcr.io/<your-username>/<your-repo-name>:1.0.0
-ghcr.io/<your-username>/<your-repo-name>:1
-```
-
-Once the workflow completes, find your Docker image in the Packages section (right sidebar of your repository). Configure the package visibility in package settings.
-
-> **Note:** Organization repositories may need package write permissions enabled manually (Settings → Actions → General). Version tags must follow [semantic versioning](https://semver.org/) (e.g., `v1.0.0`).
+- The evaluator expects Icarus Verilog and will attempt Yosys if available.
+- LLM-based architectural validation is optional; set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` and install the `llm` extra to enable.
