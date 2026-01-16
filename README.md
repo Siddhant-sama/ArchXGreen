@@ -100,3 +100,38 @@ docker run -e OPENAI_API_KEY=$OPENAI_API_KEY archxgreen-purple
 In Phase 2 of the AgentX-AgentBeats competition, others will submit their own purple agents to compete on this benchmark. The baseline purple agent serves as an example implementation showing how to interact with ArchXGreen and iterate on solutions.
 
 For Phase 2 (Feb 2-23, 2026), competitors will build their own agents and submit them separately.
+
+## Publishing to GHCR
+
+To push Docker images to GitHub Container Registry:
+
+```bash
+# Push both green and purple images
+./push-to-ghcr.sh all
+
+# Or just one
+./push-to-ghcr.sh green
+./push-to-ghcr.sh purple
+```
+
+Requires `GITHUB_TOKEN` environment variable (or manual `docker login ghcr.io`).
+
+## Registration
+
+### AgentBeats Platform Registration
+
+Both green and baseline purple agents must be registered on the AgentBeats platform:
+
+**Green Agent (Benchmark Evaluator)**
+- Platform: https://agentbeats.dev/
+- Type: Green Agent (Evaluator)
+- Docker Image: `ghcr.io/siddhant-sama/archxgreen:latest`
+- Agent ID: *(will be provided after registration)*
+
+**Baseline Purple Agent (Example Competitor)**
+- Platform: https://agentbeats.dev/
+- Type: Purple Agent (Competitor)
+- Docker Image: `ghcr.io/siddhant-sama/archxgreen/purple:latest`
+- Agent ID: *(will be provided after registration)*
+
+See [REGISTRATION_GUIDE.md](../REGISTRATION_GUIDE.md) for step-by-step instructions.
