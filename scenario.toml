@@ -1,87 +1,85 @@
-# ArchXGreen Leaderboard Scenario Configuration
-# Defines benchmark scoring and constraints for AgentBeats leaderboard
-
 [metadata]
 name = "ArchXGreen RTL Synthesis"
-description = "Comprehensive hardware design and RTL synthesis benchmark evaluation across 7 difficulty levels"
+description = "Comprehensive RTL synthesis and hardware design benchmark with 71 tasks across 9 difficulty levels, from basic combinational logic to complex system accelerators."
 version = "1.0.0"
-author = "ArchXBench Team"
-url = "https://github.com/Siddhant-sama/ArchXGreen"
+author = "ArchXBench Community"
+license = "Apache-2.0"
+
+[benchmark]
+total_tasks = 71
+difficulty_levels = ["level-0", "level-1a", "level-1b", "level-1c", "level-2", "level-3", "level-4", "level-5", "level-6"]
+task_format = "Verilog RTL design submission"
+evaluation_method = "Functional correctness via simulation and synthesis metrics"
 
 [evaluation]
-# Total number of tasks available in benchmark
-total_tasks = 71
-
-# Difficulty progression across 7 levels
-difficulty_progression = [
-  "level-0",    # Logic Building Blocks - Fundamental combinational and sequential primitives
-  "level-1a",   # Simple Arithmetic - Basic integer and bit-wise operators
-  "level-1b",   # Hierarchical/Parametric - Parameterizable modules assembled hierarchically
-  "level-1c",   # Complex Arithmetic - High-performance integer units (parallel-prefix, tree multipliers)
-  "level-2",    # Pipelined Integer - Pipelined implementations of arithmetic units
-  "level-3",    # Iterative FP/Fixed-Point - Floating-point and fixed-point iterative algorithms
-  "level-4",    # Pipelined FP/DSP - Pipelined FP units and DSP blocks
-  "level-5",    # Streaming/Systolic - Streaming architectures and systolic arrays
-  "level-6"     # Domain-Specific Accelerators - Complex accelerators (AES, FFT, convolution)
-]
-
-# Scoring method: each task is pass/fail (binary)
-scoring_method = "pass/fail_per_task"
-
-# Maximum possible score (all 71 tasks passed)
+# Scoring configuration
+scoring_method = "weighted_difficulty"
 max_score = 71
+pass_threshold = 0.5
 
-# Score calculation: weighted by difficulty
-# Difficulty weights per level for leaderboard ranking
-[evaluation.weights]
-"level-0" = 1      # Basic logic
-"level-1a" = 2     # Simple arithmetic
-"level-1b" = 3     # Hierarchical design
-"level-1c" = 4     # Complex arithmetic
-"level-2" = 5      # Pipelined integer
-"level-3" = 6      # Floating-point/fixed-point
-"level-4" = 7      # Pipelined FP
-"level-5" = 8      # Streaming/systolic
-"level-6" = 10     # Domain-specific accelerators
+# Task difficulty weights (higher level = higher weight)
+[evaluation.difficulty_weights]
+"level-0" = 1
+"level-1a" = 2
+"level-1b" = 3
+"level-1c" = 4
+"level-2" = 5
+"level-3" = 6
+"level-4" = 7
+"level-5" = 8
+"level-6" = 10
 
-[constraints]
-# Maximum time per task (seconds)
-time_limit_seconds = 300
-
-# Memory limit for evaluation container (MB)
+# Resource constraints per task
+[evaluation.constraints]
+timeout_seconds = 300
 memory_limit_mb = 2048
+verilog_size_limit_kb = 512
 
-# CPU cores available for evaluation
-cpu_cores = 4
-
-[features]
-# Enable dynamic benchmark loading from GitHub
+# Evaluation features enabled
+[evaluation.features]
 dynamic_loading = true
-
-# Generate detailed feedback for failed tasks
 feedback_generation = true
-
-# Validate architectural compliance (no forbidden constructs)
 architectural_validation = true
-
-# Compute PPA (Power, Performance, Area) metrics
 ppa_metrics = true
-
-# Optional LLM-based validation for edge cases
 llm_validation = false
 
 [leaderboard]
-# Display task completion rate on leaderboard
-show_completion_rate = true
+# Allow multiple submissions and track best score
+enable_submissions = true
+track_best_score = true
+allow_retries = true
 
-# Show weighted score (difficulty-adjusted)
-show_weighted_score = true
+# Scoring rules
+score_calculation = "total_tasks_passed * weighted_difficulty_average"
+completion_rate_calculation = "tasks_passed / total_tasks"
 
-# Show breakdown by difficulty level
-show_level_breakdown = true
+# Display configuration
+show_completion_by_level = true
+rank_by_score = true
+show_pass_rate = true
 
-# Allow agents to submit multiple times (track best)
-allow_multiple_submissions = true
+[submission]
+# Phase 1 specific
+phase = 1
+required_fields = ["team_name", "agent_name", "github_url", "docker_image_url", "demo_video_link"]
+deadline = "2026-01-15"
 
-# Display submission timestamp
-show_timestamp = true
+# Baseline purple agent
+baseline_included = true
+baseline_description = "LLM-driven Verilog generator for iterative problem solving"
+
+[domains]
+domains = [
+  "combinational-logic",
+  "sequential-logic",
+  "arithmetic-units",
+  "pipelined-designs",
+  "floating-point",
+  "dsp-kernels",
+  "domain-specific-accelerators"
+]
+
+[evaluation_tools]
+compiler = "Icarus Verilog"
+simulator = "vvp (Verilog VVP)"
+synthesizer = "Yosys"
