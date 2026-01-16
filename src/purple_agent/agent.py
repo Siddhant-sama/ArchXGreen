@@ -337,8 +337,8 @@ with clear signal names and comments."""
                     total=result["total"]
                 )
             
-            # Failed - try to fix
-            if iteration < self.max_iterations:
+            # Failed - try to fix if not last iteration or if compilation failed
+            if iteration < self.max_iterations or not result['compilation_success']:
                 self._log(f"  Refining solution...")
                 verilog_code = self._fix_verilog(task, verilog_code, result)
         
