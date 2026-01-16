@@ -319,6 +319,10 @@ with clear signal names and comments."""
             self._log(f"  Compilation: {'✓' if result['compilation_success'] else '✗'}")
             self._log(f"  Tests: {result['passed']}/{result['total']} passed")
             
+            # Log failed tests if any
+            if result['failed'] > 0 and 'error_message' in result:
+                self._log(f"  Failed tests: {result['error_message'][:200]}...")
+            
             if result["success"]:
                 self._log(f"  ✓ PASSED!")
                 return GenerationResult(
@@ -675,6 +679,7 @@ def main():
     )
     parser.add_argument(
         "--output",
+        default=None,
         help="Save results to JSON file"
     )
     
