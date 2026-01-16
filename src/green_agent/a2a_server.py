@@ -144,6 +144,9 @@ class ArchXBenchA2AServer:
             
             Returns agent identity, capabilities, and skills.
             """
+            # Derive level list from agent metrics (no direct 'levels' attribute on agent)
+            metrics = self.agent.get_metrics()
+            level_names = list(metrics.get("levels", {}).keys())
             return A2AAgentCard(
                 name="ArchXBench Green Agent",
                 version="1.0.0",
@@ -165,7 +168,7 @@ class ArchXBenchA2AServer:
                 capabilities={
                     "benchmark": "ArchXBench",
                     "total_tasks": len(self.agent.tasks),
-                    "levels": list(self.agent.levels.keys()),
+                    "levels": level_names,
                     "difficulty_range": "Level-0 (Basic) to Level-6 (Complex Systems)",
                     "evaluation_tools": {
                         "compiler": "Icarus Verilog",
