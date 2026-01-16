@@ -1,6 +1,6 @@
-"""Entry point for ArchXBench Green Agent A2A server."""
+"""Entry point for ArchXBench Green Agent server with /evaluate endpoint."""
 
-from green_agent.a2a_server import main
+from green_agent.server import main
 
 
 if __name__ == "__main__":
