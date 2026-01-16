@@ -1,0 +1,87 @@
+# ArchXGreen Leaderboard Scenario Configuration
+# Defines benchmark scoring and constraints for AgentBeats leaderboard
+
+[metadata]
+name = "ArchXGreen RTL Synthesis"
+description = "Comprehensive hardware design and RTL synthesis benchmark evaluation across 7 difficulty levels"
+version = "1.0.0"
+author = "ArchXBench Team"
+url = "https://github.com/Siddhant-sama/ArchXGreen"
+
+[evaluation]
+# Total number of tasks available in benchmark
+total_tasks = 71
+
+# Difficulty progression across 7 levels
+difficulty_progression = [
+  "level-0",    # Logic Building Blocks - Fundamental combinational and sequential primitives
+  "level-1a",   # Simple Arithmetic - Basic integer and bit-wise operators
+  "level-1b",   # Hierarchical/Parametric - Parameterizable modules assembled hierarchically
+  "level-1c",   # Complex Arithmetic - High-performance integer units (parallel-prefix, tree multipliers)
+  "level-2",    # Pipelined Integer - Pipelined implementations of arithmetic units
+  "level-3",    # Iterative FP/Fixed-Point - Floating-point and fixed-point iterative algorithms
+  "level-4",    # Pipelined FP/DSP - Pipelined FP units and DSP blocks
+  "level-5",    # Streaming/Systolic - Streaming architectures and systolic arrays
+  "level-6"     # Domain-Specific Accelerators - Complex accelerators (AES, FFT, convolution)
+]
+
+# Scoring method: each task is pass/fail (binary)
+scoring_method = "pass/fail_per_task"
+
+# Maximum possible score (all 71 tasks passed)
+max_score = 71
+
+# Score calculation: weighted by difficulty
+# Difficulty weights per level for leaderboard ranking
+[evaluation.weights]
+"level-0" = 1      # Basic logic
+"level-1a" = 2     # Simple arithmetic
+"level-1b" = 3     # Hierarchical design
+"level-1c" = 4     # Complex arithmetic
+"level-2" = 5      # Pipelined integer
+"level-3" = 6      # Floating-point/fixed-point
+"level-4" = 7      # Pipelined FP
+"level-5" = 8      # Streaming/systolic
+"level-6" = 10     # Domain-specific accelerators
+
+[constraints]
+# Maximum time per task (seconds)
+time_limit_seconds = 300
+
+# Memory limit for evaluation container (MB)
+memory_limit_mb = 2048
+
+# CPU cores available for evaluation
+cpu_cores = 4
+
+[features]
+# Enable dynamic benchmark loading from GitHub
+dynamic_loading = true
+
+# Generate detailed feedback for failed tasks
+feedback_generation = true
+
+# Validate architectural compliance (no forbidden constructs)
+architectural_validation = true
+
+# Compute PPA (Power, Performance, Area) metrics
+ppa_metrics = true
+
+# Optional LLM-based validation for edge cases
+llm_validation = false
+
+[leaderboard]
+# Display task completion rate on leaderboard
+show_completion_rate = true
+
+# Show weighted score (difficulty-adjusted)
+show_weighted_score = true
+
+# Show breakdown by difficulty level
+show_level_breakdown = true
+
+# Allow agents to submit multiple times (track best)
+allow_multiple_submissions = true
+
+# Display submission timestamp
+show_timestamp = true
