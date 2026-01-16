@@ -5,9 +5,11 @@ AgentBeats-ready green agent for the ArchXBench RTL synthesis benchmark. The ser
 ## What’s inside
 
 - `src/green_agent/` – ArchXBench loader, evaluator, and A2A server (FastAPI)
-- `src/server.py` – entrypoint that runs the A2A server
+- `src/purple_agent/` – Baseline LLM-driven Verilog generator (example competitor agent)
+- `src/server.py` – entrypoint that runs the green A2A server
 - `tests/` – basic endpoint checks against a running agent
-- `Dockerfile` – ships git + iverilog + yosys for in-container evaluation
+- `Dockerfile` – ships git + iverilog + yosys for in-container green agent
+- `Dockerfile.purple` – baseline purple agent for local testing
 - `pyproject.toml` – uv/PEP 621 metadata
 
 ## System requirements
@@ -61,7 +63,40 @@ Ensure the agent is running (locally or via Docker), then:
 uv run pytest -v --agent-url http://localhost:9009
 ```
 
+## Baseline Purple Agent (Example Competitor)
+
+The included baseline purple agent demonstrates how to solve ArchXBench tasks using LLM-driven code generation. It queries the green agent for task details and iteratively refines solutions based on evaluation feedback.
+
+### Run baseline purple agent locally
+
+```bash
+# Install dependencies including LLM backends
+uv sync --extra llm
+
+# Run with OpenAI backend (requires OPENAI_API_KEY)
+uv run src/purple_agent/agent.py --backend openai --levels level-0 --num-tasks 3
+
+# Or with Anthropic Claude
+uv run src/purple_agent/agent.py --backend anthropic --levels level-0 --num-tasks 3
+
+# Or Gemini
+uv run src/purple_agent/agent.py --backend gemini --levels level-0 --num-tasks 3
+```
+
+### Run baseline purple agent in Docker
+
+```bash
+docker build -t archxgreen-purple -f Dockerfile.purple .
+docker run -e OPENAI_API_KEY=$OPENAI_API_KEY archxgreen-purple
+```
+
 ## Notes
 
 - The evaluator expects Icarus Verilog and will attempt Yosys if available.
 - LLM-based architectural validation is optional; set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` and install the `llm` extra to enable.
+
+## Phase 2 (Competitor Purple Agents)
+
+In Phase 2 of the AgentX-AgentBeats competition, others will submit their own purple agents to compete on this benchmark. The baseline purple agent serves as an example implementation showing how to interact with ArchXGreen and iterate on solutions.
+
+For Phase 2 (Feb 2-23, 2026), competitors will build their own agents and submit them separately.

@@ -1,0 +1,33 @@
+# ArchXGreen Baseline Purple Agent - Docker Image
+# 
+# Baseline LLM-powered Verilog generator for AgentBeats platform
+# This demonstrates a competitor agent solving ArchXBench tasks
+
+FROM python:3.11-slim
+
+LABEL maintainer="ArchXGreen Contributors"
+LABEL description="ArchXGreen Baseline Purple Agent - LLM Verilog Generator"
+LABEL version="1.0.0"
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+COPY pyproject.toml uv.lock ./
+RUN pip install --no-cache-dir uv && \
+    uv sync --locked
+
+# Copy purple agent and green agent models (for type definitions)
+COPY src/purple_agent/ ./src/purple_agent/
+COPY src/green_agent/models.py ./src/green_agent/
+COPY src/green_agent/__init__.py ./src/green_agent/
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Purple agent entrypoint
+# Expects to be called with backend, levels, and num_tasks
+ENTRYPOINT ["python", "-m", "src.purple_agent.agent"]
+
+# Default: solve level-0 tasks with OpenAI backend
+CMD ["--backend", "openai", "--levels", "level-0", "--num-tasks", "5"]
